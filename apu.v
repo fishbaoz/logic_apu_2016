@@ -10,7 +10,7 @@
 
 
 
-// CPLD·ÖÅäµØÖ· index(0xa80)/data(0xa81)
+// CPLDåˆ†é…åœ°å€ index(0xa80)/data(0xa81)
 `define LPC_INDEX_ADD   16'h4700
 `define LPC_DATA_ADD    16'h4701
 `define LPC_POST_ADD    16'h080
@@ -20,57 +20,57 @@
 module apu 
 (
 	/**************************************************
-	//PCI-EµÄ×´Ì¬Êä³öĞÅºÅ(MGM_STS):
-	//ÓÉÇı¶¯³ÌĞò¿ØÖÆÕâ¸öĞÅºÅµÄÊä³ö:¸ßµçÆ½±íÊ¾Ä£¿éÉÏµç³õÊ¼»¯ºó¹¤×÷Õı³£
-	//4¸öÍâ²¿¸´Î»ĞÅºÅÖĞÈÎÒ»¸öÊäÈëµ½Ä£¿éºó£¬Ä£¿é½«PCI-EµÄ×´Ì¬Êä³öĞÅºÅ
-	//(MGM_STS)ÖÃÎªÎŞĞ§500msºó£¬Ä£¿é²úÉúÓ²¸´Î»¡£
+	//PCI-Eçš„çŠ¶æ€è¾“å‡ºä¿¡å·(MGM_STS):
+	//ç”±é©±åŠ¨ç¨‹åºæ§åˆ¶è¿™ä¸ªä¿¡å·çš„è¾“å‡º:é«˜ç”µå¹³è¡¨ç¤ºæ¨¡å—ä¸Šç”µåˆå§‹åŒ–åå·¥ä½œæ­£å¸¸
+	//4ä¸ªå¤–éƒ¨å¤ä½ä¿¡å·ä¸­ä»»ä¸€ä¸ªè¾“å…¥åˆ°æ¨¡å—åï¼Œæ¨¡å—å°†PCI-Eçš„çŠ¶æ€è¾“å‡ºä¿¡å·
+	//(MGM_STS)ç½®ä¸ºæ— æ•ˆ500msåï¼Œæ¨¡å—äº§ç”Ÿç¡¬å¤ä½ã€‚
 	***************************************************/
-	output wire [8:0] DIS_OUT,		// ÀëÉ¢Á¿Êä³ö£¬ÆäÖĞDIS_OUT[8] = MGM_STS£¬PCI-E×´Ì¬Ö¸Ê¾ĞÅºÅ
-	input wire [13:2] DIS_IN,		// ÀëÉ¢Á¿ÊäÈë
+	output wire [8:0] DIS_OUT,		// ç¦»æ•£é‡è¾“å‡ºï¼Œå…¶ä¸­DIS_OUT[8] = MGM_STSï¼ŒPCI-EçŠ¶æ€æŒ‡ç¤ºä¿¡å·
+	input wire [13:2] DIS_IN,		// ç¦»æ•£é‡è¾“å…¥
 	
 	// XMC
-	input wire XMC_MRSTIn,			// XMCÊäÈëµÄ¸´Î»ĞÅºÅ
-	output wire XMC_MRSTOn,			// XMCÊä³öµÄ¸´Î»ĞÅºÅ
-	output wire XMC_PRESENTn,		// ¿¨ÔÚÎ»ĞÅºÅ£¬Æô¶¯ºóÎª0
-	input wire XMC_MSDA,			// Íâ²¿I2C
-	input wire XMC_MSCL,			// Íâ²¿I2C
+	input wire XMC_MRSTIn,			// XMCè¾“å…¥çš„å¤ä½ä¿¡å·
+	output wire XMC_MRSTOn,			// XMCè¾“å‡ºçš„å¤ä½ä¿¡å·
+	output wire XMC_PRESENTn,		// å¡åœ¨ä½ä¿¡å·ï¼Œå¯åŠ¨åä¸º0
+	input wire XMC_MSDA,			// å¤–éƒ¨I2C
+	input wire XMC_MSCL,			// å¤–éƒ¨I2C
 	
 	
-	input wire INHMDG,			// ½ûÖ¹¿´ÃÅ¹·ĞÅºÅ
-	input wire SYS_MAIN,			// ÒâÒå´ı¶¨ ÏµÍ³¼à¿Ø
-	input wire GSE,				// ÒâÒå´ı¶¨ µØÃæ/¿ÕÖĞ
-	input wire [1:0] SYS_ID,		// ²ÛÎ»Ê¶±ğ
-	input wire [1:0] SS,			// ¹¤×÷×´Ì¬ĞÅºÅ
-	input wire L_R,				// Î»ÖÃ×óÓÒÊ¶±ğ
+	input wire INHMDG,			// ç¦æ­¢çœ‹é—¨ç‹—ä¿¡å·
+	input wire SYS_MAIN,			// æ„ä¹‰å¾…å®š ç³»ç»Ÿç›‘æ§
+	input wire GSE,				// æ„ä¹‰å¾…å®š åœ°é¢/ç©ºä¸­
+	input wire [1:0] SYS_ID,		// æ§½ä½è¯†åˆ«
+	input wire [1:0] SS,			// å·¥ä½œçŠ¶æ€ä¿¡å·
+	input wire L_R,				// ä½ç½®å·¦å³è¯†åˆ«
 	
 	
-	input wire PCIE_RSTn,			// CPUÊä³öµÄPCIE¸´Î»ĞÅºÅ
-	input wire PSMRSTn,			// µçÔ´Ä£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	input wire RESET_INn,			// µ÷ÊÔ¸´Î»°´Å¥
-	output wire SYS_RSTn,			// ÏµÍ³¸´Î»ĞÅºÅ
-//	input wire ISP_IO3n,			// BIOS ÉÕ½á¿Ú¸´Î»
-	output wire [2:0] RST_On,		// ¸´Î»Êä³öĞÅºÅ
+	input wire PCIE_RSTn,			// CPUè¾“å‡ºçš„PCIEå¤ä½ä¿¡å·
+	input wire PSMRSTn,			// ç”µæºæ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	input wire RESET_INn,			// è°ƒè¯•å¤ä½æŒ‰é’®
+	output wire SYS_RSTn,			// ç³»ç»Ÿå¤ä½ä¿¡å·
+//	input wire ISP_IO3n,			// BIOS çƒ§ç»“å£å¤ä½
+	output wire [2:0] RST_On,		// å¤ä½è¾“å‡ºä¿¡å·
 	output wire ETH_RSTn,			// eth reset
 	
 	
-	output wire PWR_BTNn,			// ¿ª»úĞÅºÅÊä³ö¸øCPU
+	output wire PWR_BTNn,			// å¼€æœºä¿¡å·è¾“å‡ºç»™CPU
 	
-	input wire clk_24mhz,			// 24MHz¾§Õñ
+	input wire clk_24mhz,			// 24MHzæ™¶æŒ¯
 	
-	output wire APU_VRM_EN,			// ¸ßµçÆ½Ê¹ÄÜµçÑ¹Êä³ö
-	input wire SYS_PWRGD,      		// ËùÓĞµçOKºó ·¢ËÍµ½CPU
-	input wire SLP_S3n,			// CPU·¢ËÍ³öÀ´
-	input wire SLP_S5n,			// CPU·¢ËÍ³öÀ´
-	output wire VRS_ON,			// ¸ßµçÆ½Ê±´ò¿ª5v,3.3v,0.95vµçÑ¹
+	output wire APU_VRM_EN,			// é«˜ç”µå¹³ä½¿èƒ½ç”µå‹è¾“å‡º
+	input wire SYS_PWRGD,      		// æ‰€æœ‰ç”µOKå å‘é€åˆ°CPU
+	input wire SLP_S3n,			// CPUå‘é€å‡ºæ¥
+	input wire SLP_S5n,			// CPUå‘é€å‡ºæ¥
+	output wire VRS_ON,			// é«˜ç”µå¹³æ—¶æ‰“å¼€5v,3.3v,0.95vç”µå‹
 //	input wire V0V95_ALW_PWRGD,		// 0.95V alw POWER GOOD
-	output wire DISCHARGE_S3n,		// µÍµçÆ½Ê±·Åµç
-	output wire DISCHARGE_S5n,		// µÍµçÆ½Ê±·Åµç
-	input wire V1V8_PWRGD,			// ¸ßµçÆ½±íÊ¾+1.8vµçÑ¹Õı³£
+	output wire DISCHARGE_S3n,		// ä½ç”µå¹³æ—¶æ”¾ç”µ
+	output wire DISCHARGE_S5n,		// ä½ç”µå¹³æ—¶æ”¾ç”µ
+	input wire V1V8_PWRGD,			// é«˜ç”µå¹³è¡¨ç¤º+1.8vç”µå‹æ­£å¸¸
 	input wire V3V3_ALW_PWRGD,		// 3.3V POWER GOOD
-	output wire V1V8_EN,			// ¸ßµçÆ½Ê±´ò¿ª1.8vµçÑ¹
-	input wire APU_VDD_PWRGD,		// ¸ßµçÆ½±íÊ¾APU_VDD_RUN,APU_VDDNB_RUNµçÑ¹Õı³£
-//	input wire DDR_PWROK,			// ¸ßµçÆ½±íÊ¾VDDIO_SUS,VTT_SUSµçÑ¹Õı³£
-//	output wire APU_VDDNB_PWRGD,		// ±ØĞëÖÃÎª1
+	output wire V1V8_EN,			// é«˜ç”µå¹³æ—¶æ‰“å¼€1.8vç”µå‹
+	input wire APU_VDD_PWRGD,		// é«˜ç”µå¹³è¡¨ç¤ºAPU_VDD_RUN,APU_VDDNB_RUNç”µå‹æ­£å¸¸
+//	input wire DDR_PWROK,			// é«˜ç”µå¹³è¡¨ç¤ºVDDIO_SUS,VTT_SUSç”µå‹æ­£å¸¸
+//	output wire APU_VDDNB_PWRGD,		// å¿…é¡»ç½®ä¸º1
 //	input wire V0V95_PWRGD,			// 0.95V POWER GOOD
 	input wire V1V_PWRGD,			// 1V POWER GOOD (CPU 0.95V, ETH 1V)
 	input wire V1V5_PWRGD,		// 1.5V alw POWER GOOD
@@ -86,40 +86,40 @@ module apu
 	
 	
 	
-	// lpc½Ó¿Ú
-	input wire LPC_CLK,			// LPC Clock 33MHz Íü¼Ç¶¨ÒåÁË
-	input wire LPC_RSTn,			// rstĞÅºÅ
+	// lpcæ¥å£
+	input wire LPC_CLK,			// LPC Clock 33MHz å¿˜è®°å®šä¹‰äº†
+	input wire LPC_RSTn,			// rstä¿¡å·
 	input wire LPC_FRAMEn,			// Frame - Active Low
 	inout wire [3:0] LPC_AD,    		// Address/Data Bus
-	inout wire int_serirq,      		// LPC´®ĞĞÖĞ¶Ï
-	output wire LPC_CLKRUNn,		// µÍµçÆ½ÇëÇóCPU·¢ËÍLPCCLKĞÅºÅ
-	output wire LDRQn,			// LPC DMAÇëÇó Î´Ê¹ÓÃ
+	inout wire int_serirq,      		// LPCä¸²è¡Œä¸­æ–­
+	output wire LPC_CLKRUNn,		// ä½ç”µå¹³è¯·æ±‚CPUå‘é€LPCCLKä¿¡å·
+	output wire LDRQn,			// LPC DMAè¯·æ±‚ æœªä½¿ç”¨
 	
-	input wire SD_LED,			// SD ¿¨Ö¸Ê¾µÆ£¬Ã»ÓĞÊ¹ÓÃ
+	input wire SD_LED,			// SD å¡æŒ‡ç¤ºç¯ï¼Œæ²¡æœ‰ä½¿ç”¨
 	
-	input wire [2:0] LAN1_LED,		// ÒÔÌ«ÍøÖ¸Ê¾µÆ
-	input wire [2:0] LAN2_LED,		// ÒÔÌ«ÍøÖ¸Ê¾µÆ
+	input wire [2:0] LAN1_LED,		// ä»¥å¤ªç½‘æŒ‡ç¤ºç¯
+	input wire [2:0] LAN2_LED,		// ä»¥å¤ªç½‘æŒ‡ç¤ºç¯
 	
 	output wire PCIE_WAKE_UPn,		// PCIE WAKE UP
 	input wire ETH1_WAKE_UPn,		// ETH1 PCIE WAKE UP
 	input wire ETH2_WAKE_UPn,		// ETH2 PCIE WAKE UP
 	
-	input wire SATA_ACT,				// Ó²ÅÌ¶ÁĞ´Ö¸Ê¾µÆ
+	input wire SATA_ACT,				// ç¡¬ç›˜è¯»å†™æŒ‡ç¤ºç¯
 	
-	output wire [7:0] CPLD_LED,		// Ö÷°åÇ°Ãæ°åLED¿ØÖÆ µÍµçÆ½µÆÁÁ
+	output wire [7:0] CPLD_LED,		// ä¸»æ¿å‰é¢æ¿LEDæ§åˆ¶ ä½ç”µå¹³ç¯äº®
 	output wire ECC_CHECK,			// ECC_CHECK=1:enable ecc;=0 no ecc;
-	output wire CPLD_SPKR,			// ¿ØÖÆ·äÃùÆ÷ ¸ßµçÆ½Ïì
-	output wire [2:0] CPLD_IO,	// ÖÁfpcµ÷ÊÔ½Ó¿ÚµÄIO
+	output wire CPLD_SPKR,			// æ§åˆ¶èœ‚é¸£å™¨ é«˜ç”µå¹³å“
+	output wire [2:0] CPLD_IO,	// è‡³fpcè°ƒè¯•æ¥å£çš„IO
 	input wire SPKR,			// CPU speaker
 	input wire APU_ALERT,		// CPU alert ?
 	input wire APU_FANTACH0,	// CPU FAN CONTROL
 	input wire APU_FANOUT0,		// CPU FAN CONTROL
 	
-	// ´®¿Ú
-	input wire PLD_RX1,			// ´®¿Ú1
-	output wire PLD_TX1,			// ´®¿Ú1
-	input wire PLD_RX2,			// ´®¿Ú2
-	output wire PLD_TX2,			// ´®¿Ú2
+	// ä¸²å£
+	input wire PLD_RX1,			// ä¸²å£1
+	output wire PLD_TX1,			// ä¸²å£1
+	input wire PLD_RX2,			// ä¸²å£2
+	output wire PLD_TX2,			// ä¸²å£2
 	
 	input SCLK,
 	input SDATA,
@@ -128,11 +128,11 @@ module apu
 
 	// cpu gpio
 	output wire [4:0] PCIE_CLKREQn,
-	output wire S_TALERTn,			// ÎÂ¶È±¨¾¯
-	output wire DP0_CAB_DP_HDMIn,		// ¸ßµçÆ½ÎªDP¶Ë¿Ú£¬µÍµçÆ½ÎªDVI¶Ë¿Ú DP0--->LVDS
-	output wire DP1_CAB_DP_HDMIn,		// ¸ßµçÆ½ÎªDP¶Ë¿Ú£¬µÍµçÆ½ÎªDVI¶Ë¿Ú DP1ÅäÖÃÎªDVI
+	output wire S_TALERTn,			// æ¸©åº¦æŠ¥è­¦
+	output wire DP0_CAB_DP_HDMIn,		// é«˜ç”µå¹³ä¸ºDPç«¯å£ï¼Œä½ç”µå¹³ä¸ºDVIç«¯å£ DP0--->LVDS
+	output wire DP1_CAB_DP_HDMIn,		// é«˜ç”µå¹³ä¸ºDPç«¯å£ï¼Œä½ç”µå¹³ä¸ºDVIç«¯å£ DP1é…ç½®ä¸ºDVI
 	output wire THERMTRIPn,
-	input wire BLINKn,			// ÓÃÓÚÖ¸Ê¾µÆ
+	input wire BLINKn,			// ç”¨äºæŒ‡ç¤ºç¯
 	
 	
 	input wire FAN0_V,
@@ -200,10 +200,10 @@ assign ETH_RSTn = USER_RSTn;
 assign PG0 = {APU_VRM_EN, SYS_PWRGD, SLP_S3n, SLP_S5n, VRS_ON, 1'b0, V1V8_PWRGD, V3V3_ALW_PWRGD};
 assign PG1 = {V1V8_EN, APU_VDD_PWRGD, 1'b0, V1V_PWRGD, V1V5_PWRGD, 1'b0, 1'b0, NAND_1V2_PWRGD};
 
-wire [15:0] reg_out;			// ÉÏµç³õÊ¼»¯ÅäÖÃ¼Ä´æÆ÷
-wire ctrl_signal; // =1 CPLDÄÚ²¿³õÊ¼»¯Íê³É,=0 CPLDÕıÔÚÄÚ²¿³õÊ¼»¯
+wire [15:0] reg_out;			// ä¸Šç”µåˆå§‹åŒ–é…ç½®å¯„å­˜å™¨
+wire ctrl_signal; // =1 CPLDå†…éƒ¨åˆå§‹åŒ–å®Œæˆ,=0 CPLDæ­£åœ¨å†…éƒ¨åˆå§‹åŒ–
 
-// 5.56MHz clk ¼ÆÊı
+// 5.56MHz clk è®¡æ•°
 wire osc;
 
 // for reset delay
@@ -237,7 +237,7 @@ always @(posedge osc or negedge ctrl_signal) begin
 		PWR_BTN_cnt <= PWR_BTN_cnt;
 end
 
-//assign PWR_BTNn = ctrl_signal ? (reg_out[2] ? ((PWR_BTN_cnt == 4'hf) & RESET_INn) : RESET_INn) : 1'b1; // ¿ª»ú°´Å¥ ĞèÒª°´Ò»ÏÂ¿ª»ú
+//assign PWR_BTNn = ctrl_signal ? (reg_out[2] ? ((PWR_BTN_cnt == 4'hf) & RESET_INn) : RESET_INn) : 1'b1; // å¼€æœºæŒ‰é’® éœ€è¦æŒ‰ä¸€ä¸‹å¼€æœº
 //assign PWR_BTNn = 1'bz;
 assign PWR_BTNn = RESET_INn;
 // GROUP C
@@ -252,7 +252,7 @@ assign V1V8_EN = ctrl_signal & V1V5_PWRGD & SLP_S3n;
 // GROUP E
 assign APU_VRM_EN = (V1V8_PWRGD & V1V_PWRGD & DIS_IN[12]) ? 1 : 0;
 assign SYS_PWR_GOOD_ALL = ~APU_VDD_PWRGD;
-// ÓÉÓÚAPU_VDD_PWRGDÒı½ÅÃ»×öÉÏÀ­ ËùÒÔ´Ë´¦×öÒ»¸öÑÓÊ± Ä¬ÈÏAPUµçOK
+// ç”±äºAPU_VDD_PWRGDå¼•è„šæ²¡åšä¸Šæ‹‰ æ‰€ä»¥æ­¤å¤„åšä¸€ä¸ªå»¶æ—¶ é»˜è®¤APUç”µOK
 reg [3:0] apu_cnt;
 //assign SYS_PWRGD = (V1V8_PWRGD & V1_PWRGD) & (apu_cnt==4'hf);
 always @(posedge osc or negedge APU_VRM_EN) begin
@@ -264,7 +264,7 @@ always @(posedge osc or negedge APU_VRM_EN) begin
 		apu_cnt <= apu_cnt;
 end
 
-// ·ÅµçÂß¼­
+// æ”¾ç”µé€»è¾‘
 assign DISCHARGE_S3n = V1V8_EN;
 assign DISCHARGE_S5n = DDR_SLP_S5n;
 
@@ -281,7 +281,7 @@ wire lpc_io_rden;
 wire [7:0] postcode;
 wire com0_irq;
 
-wire [7:0] LED_REG;				// LEDÖ¸Ê¾µÆ¼Ä´æÆ÷
+wire [7:0] LED_REG;				// LEDæŒ‡ç¤ºç¯å¯„å­˜å™¨
 assign CPLD_LED = ctrl_signal ? 
 					((reg_out[1:0]==2'b11) ? {SYS_RSTn,SATA_ACT,!SYS_PWRGD,!(V1V8_PWRGD),!V1V5_PWRGD,!SLP_S5n,!SLP_S3n,!PWR_BTNn} :
 					((reg_out[1:0]==2'b10) ? ~postcode :
@@ -308,7 +308,7 @@ assign DP1_CAB_DP_HDMIn = 0; // dp1 dvi
 
 
 wire [7:0] lpc_reg;
-// CPLD µØÖ··ÖÅäindex/data µØÖ·Æ¥Åä
+// CPLD åœ°å€åˆ†é…index/data åœ°å€åŒ¹é…
 assign addr_hit =	`ifdef POST_CODE
 						(lpc_addr == `LPC_POST_ADD) || 
 					`endif
@@ -339,48 +339,48 @@ LPC_Peri LPC_Peri(
 	.lframe_n(LPC_FRAMEn),			// Frame - Active Low
 	.lad_in(LPC_AD),				// Address/Data Bus
 
-	.lpc_data_out(),				// ÓÃÓÚ²âÊÔ
+	.lpc_data_out(),				// ç”¨äºæµ‹è¯•
 
-	.lpc_en(lpc_en),				// ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
-	.addr_hit(addr_hit),			// µØÖ·Æ¥ÅäÖÃ1,²»Æ¥ÅäÖÃ0
-	.lpc_addr(lpc_addr),			// LPCµØÖ·
-	.din(lpc_din),					// LPC¶ÁµÄÊ±ºòºó¶ËÊäÈëµÄÊı¾İ
-	.lpc_data_in(lpc_dout),         // LPCĞ´µÄÊ±ºò¸øºó¶ËµÄÊä³öÊı¾İ
-	.io_rden_sm(lpc_io_rden),       // ¶ÁÊ¹ÄÜĞÅºÅ
-	.io_wren_sm(lpc_io_wren),       // Ğ´Ê¹ÄÜĞÅºÅ
-	.int_serirq(int_serirq),		// ´®ĞĞÖĞ¶ÏÊäÈë
-	//.serirq({3'b000,com0_irq,4'b0000})							// ÖĞ¶ÏÊäÈë ¸ßµçÆ½ÓĞĞ§
+	.lpc_en(lpc_en),				// åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
+	.addr_hit(addr_hit),			// åœ°å€åŒ¹é…ç½®1,ä¸åŒ¹é…ç½®0
+	.lpc_addr(lpc_addr),			// LPCåœ°å€
+	.din(lpc_din),					// LPCè¯»çš„æ—¶å€™åç«¯è¾“å…¥çš„æ•°æ®
+	.lpc_data_in(lpc_dout),         // LPCå†™çš„æ—¶å€™ç»™åç«¯çš„è¾“å‡ºæ•°æ®
+	.io_rden_sm(lpc_io_rden),       // è¯»ä½¿èƒ½ä¿¡å·
+	.io_wren_sm(lpc_io_wren),       // å†™ä½¿èƒ½ä¿¡å·
+	.int_serirq(int_serirq),		// ä¸²è¡Œä¸­æ–­è¾“å…¥
+	//.serirq({3'b000,com0_irq,4'b0000})							// ä¸­æ–­è¾“å…¥ é«˜ç”µå¹³æœ‰æ•ˆ
 	.serirq({3'b000,com0_irq,4'b000})
 );
 
-// ¼Ä´æÆ÷Ä£¿é UFMÄ£¿é index/data Ä£Ê½²Ù×÷
+// å¯„å­˜å™¨æ¨¡å— UFMæ¨¡å— index/data æ¨¡å¼æ“ä½œ
 LPC_Device LPC_Device(
 	.SLP_S5n(SLP_S5n),
 	.lclk(LPC_CLK), // Clock
 	.lreset_n(LPC_RSTn), // Reset - Active Low (Same as PCI Reset)
-	.lpc_en(lpc_en), // ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
+	.lpc_en(lpc_en), // åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
 	.device_cs(addr_hit && (lpc_addr == `LPC_DATA_ADD)),
-	.addr(index_add), // µØÖ·
+	.addr(index_add), // åœ°å€
 	.din(lpc_dout),		
 	.dout(lpc_din),		
 	.io_rden(lpc_io_rden),
 	.io_wren(lpc_io_wren),
 
-	.INHMDG(INHMDG),					// =1¿´ÃÅ¹·½ûÖ¹,=0¿´ÃÅ¹·ÆôÓÃ
-	.DPM_RSTn(1'b1),				// DPMÄ£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	.HPM_RSTn(1'b1),				// Ö÷¿ØÄ£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	.MGM_RSTn(DIS_IN[13]),				// Íâ²¿°´Å¥ÊÖ¶¯¸´Î»ĞÅºÅ
-	.PSMRSTn(PSMRSTn),				// µçÔ´Ä£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	.MGM_STS(DIS_OUT[8]),			// PCI-E×´Ì¬Ö¸Ê¾ĞÅºÅ
+	.INHMDG(INHMDG),					// =1çœ‹é—¨ç‹—ç¦æ­¢,=0çœ‹é—¨ç‹—å¯ç”¨
+	.DPM_RSTn(1'b1),				// DPMæ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	.HPM_RSTn(1'b1),				// ä¸»æ§æ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	.MGM_RSTn(DIS_IN[13]),				// å¤–éƒ¨æŒ‰é’®æ‰‹åŠ¨å¤ä½ä¿¡å·
+	.PSMRSTn(PSMRSTn),				// ç”µæºæ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	.MGM_STS(DIS_OUT[8]),			// PCI-EçŠ¶æ€æŒ‡ç¤ºä¿¡å·
 	.USER_RSTn(USER_RSTn),
 	.RST_STS(RST_STS),
 
-	.SYS_MAIN(SYS_MAIN),				// ÒâÒå´ı¶¨ ÏµÍ³¼à¿Ø
-	.GSE(GSE),					// ÒâÒå´ı¶¨ µØÃæ/¿ÕÖĞ
-	.SYS(SS),					// ÒâÒå´ı¶¨ ÏµÍ³µ÷ÊÔ
-	.SYS_ID(SYS_ID),			// ²ÛÎ»Ê¶±ğ
-	.DIS_IN(DIS_IN),			// ÀëÉ¢Á¿ÊäÈë
-	.L_R(L_R),				// Î»ÖÃÊ¶±ğ
+	.SYS_MAIN(SYS_MAIN),				// æ„ä¹‰å¾…å®š ç³»ç»Ÿç›‘æ§
+	.GSE(GSE),					// æ„ä¹‰å¾…å®š åœ°é¢/ç©ºä¸­
+	.SYS(SS),					// æ„ä¹‰å¾…å®š ç³»ç»Ÿè°ƒè¯•
+	.SYS_ID(SYS_ID),			// æ§½ä½è¯†åˆ«
+	.DIS_IN(DIS_IN),			// ç¦»æ•£é‡è¾“å…¥
+	.L_R(L_R),				// ä½ç½®è¯†åˆ«
 	
 	.PG0(PG0),				// Power Good Group 0
 	.PG1(PG1),				// Power Good Group 1
@@ -389,9 +389,9 @@ LPC_Device LPC_Device(
 
 	.LED_REG(LED_REG),
 	.osc(osc),
-	.ctrl_signal(ctrl_signal),	// =0,ÉÏµç×Ô¶ÁÈ¡;=1,Íâ²¿¿ØÖÆ
+	.ctrl_signal(ctrl_signal),	// =0,ä¸Šç”µè‡ªè¯»å–;=1,å¤–éƒ¨æ§åˆ¶
 	.lpc_reg(lpc_reg),
-	.reg_out(reg_out) // ¼Ä´æÆ÷Êä³ö
+	.reg_out(reg_out) // å¯„å­˜å™¨è¾“å‡º
 );
 
 `ifdef POST_CODE
@@ -399,9 +399,9 @@ LPC_Device LPC_Device(
 	LPC_POSTCODE LPC_POSTCODE(
 	  .lclk(LPC_CLK), // Clock
 	  .lreset_n(LPC_RSTn), // Reset - Active Low (Same as PCI Reset)
-	  .lpc_en(lpc_en), // ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
+	  .lpc_en(lpc_en), // åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
 	  .device_cs(addr_hit & (lpc_addr == `LPC_POST_ADD)),
-	  .addr(index_add), // µØÖ·
+	  .addr(index_add), // åœ°å€
 	  .din(lpc_dout),
 	  .dout(),
 	  .io_rden(),
@@ -414,23 +414,23 @@ LPC_Device LPC_Device(
 `endif
 
 `ifdef COM0_UART
-	// ´®¿ÚÄÚºË COM0
+	// ä¸²å£å†…æ ¸ COM0
 	LPC_COM LPC_COM0(
 		.lclk(LPC_CLK),					// Clock 33MHz
 		.lreset_n(LPC_RSTn),				// Reset - Active Low (Same as PCI Reset)
-		.lpc_en(lpc_en),				// ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
+		.lpc_en(lpc_en),				// åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
 		.device_cs(addr_hit && (lpc_addr >= `LPC_COM0_ADD) && (lpc_addr <= `LPC_COM0_ADD+7)),
-		.addr(lpc_addr - `LPC_COM0_ADD),			// µØÖ·
+		.addr(lpc_addr - `LPC_COM0_ADD),			// åœ°å€
 		.din(lpc_dout),
 		.dout(lpc_din),
 		.io_rden(lpc_io_rden),
 		.io_wren(lpc_io_wren),
 		.com_irq(com0_irq),
 
-		.clk_24mhz(clk_24mhz),			// 24MHzÊ±ÖÓÊäÈë
+		.clk_24mhz(clk_24mhz),			// 24MHzæ—¶é’Ÿè¾“å…¥
 		.tx(PLD_TX1),
 		.rx(PLD_RX1),
-		.baud_clk()			// ²¨ÌØÂÊÊ±ÖÓÊä³ö
+		.baud_clk()			// æ³¢ç‰¹ç‡æ—¶é’Ÿè¾“å‡º
 	);
 `else
 	assign PLD_TX1 = 1;

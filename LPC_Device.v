@@ -1,93 +1,93 @@
-// --------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // FileName:  "LPC_Device1.v"
 // Author  :  Roger.Yu
 // Company :  www.icpc.cn
 // use max ii ufm, can read and write.
 // in begin auto read address 0x01 data send out.
 // --------------------------------------------------------------------
-`define CPLD_VERSION    8'h02		// CPLD³ÌĞò°æ±¾ºÅ
-//`define USE_UFM						// Ê¹ÓÃUFM¹¦ÄÜ
+`define CPLD_VERSION    8'h02		// CPLDç¨‹åºç‰ˆæœ¬å·
+//`define USE_UFM						// ä½¿ç”¨UFMåŠŸèƒ½
 
-// LPC index/data ¼Ä´æÆ÷
-// 0x0c,0x0d °å¿¨ÅäÖÃ¼Ä´æÆ÷
-// bit		name				ËµÃ÷
+// LPC index/data å¯„å­˜å™¨
+// 0x0c,0x0d æ¿å¡é…ç½®å¯„å­˜å™¨
+// bit		name				è¯´æ˜
 // 15:14	NC					NC
 // 13		NC					NC
-// 12		UPCFG_TIMER_ENn		PEX8609ÇÅPCIEËÙÂÊÅäÖÃ
-// 11		NT_P2P_ENn			PEX8609ÇÅÄÚ²¿ÇÅÆôÓÃ·ñ
-// 10		SCCISO_ENAn			1:ÇÅÊ¹ÓÃÄÚ²¿Ê±ÖÓ;0:ÇÅÊ¹ÓÃÍâ²¿Ê±ÖÓ
-// 9		NT_ENA				1:ÇÅÎªÆÕÍ¨Ä£Ê½;0:NTÄ£Ê½
+// 12		UPCFG_TIMER_ENn		PEX8609æ¡¥PCIEé€Ÿç‡é…ç½®
+// 11		NT_P2P_ENn			PEX8609æ¡¥å†…éƒ¨æ¡¥å¯ç”¨å¦
+// 10		SCCISO_ENAn			1:æ¡¥ä½¿ç”¨å†…éƒ¨æ—¶é’Ÿ;0:æ¡¥ä½¿ç”¨å¤–éƒ¨æ—¶é’Ÿ
+// 9		NT_ENA				1:æ¡¥ä¸ºæ™®é€šæ¨¡å¼;0:NTæ¨¡å¼
 // 8		ECC_ENA				NC
-// 7:4		CH7511_GPIO			Òº¾§ÆÁ²ÎÊıÑ¡Ôñ
-// 3		LCDSEL				1:Ë«Í¨µÀÄ£Ê½;0:µ¥Í¨µÀ,Ë«ÆÁ¸´ÖÆ¹¦ÄÜ
-// 2		AT_ON				1:ATÄ£Ê½,ÉÏµç¾Í¿ªÊ¼Æô¶¯;
-//								0:ATXÄ£Ê½,ÉÏµçºóĞèÒª°´power button°´Å¥¿ª»ú
-// 1:0		LEC_CTL				¿ØÖÆLEDÖ¸Ê¾µÆÏÔÊ¾Ä£Ê½£º
-//								11:LEDÖ¸Ê¾µÆÏÔÊ¾ÉÏµç¹ı³Ì
-//								10:LEDÖ¸Ê¾µÆÏÔÊ¾POSTCODE
-//								01:LEDÖ¸Ê¾µÆÏÔÊ¾PEX8609 PCIEËÙÂÊ×´Ì¬
-//								00:LEDÖ¸Ê¾µÆÏÔÊ¾LED¼Ä´æÆ÷
-`define REG_OUT_DEFAULT 16'hfd26  // LEDÏÔÊ¾POSTCODE,Ñ¡ÔñÅäÖÃ2,µ¥Í¨µÀÆÁ
-//`define REG_OUT_DEFAULT 16'hfd27	// LEDÏÔÊ¾ÉÏµç¹ı³Ì,Ñ¡ÔñÅäÖÃ2,µ¥Í¨µÀÆÁ
-//`define REG_OUT_DEFAULT 16'hfdfe  // LEDÏÔÊ¾POSTCODE,Ñ¡ÔñÅäÖÃ16,Ë«Í¨µÀÆÁ
-//`define REG_OUT_DEFAULT 16'hfdff  // LEDÏÔÊ¾ÉÏµç¹ı³Ì,Ñ¡ÔñÅäÖÃ16,Ë«Í¨µÀÆÁ
+// 7:4		CH7511_GPIO			æ¶²æ™¶å±å‚æ•°é€‰æ‹©
+// 3		LCDSEL				1:åŒé€šé“æ¨¡å¼;0:å•é€šé“,åŒå±å¤åˆ¶åŠŸèƒ½
+// 2		AT_ON				1:ATæ¨¡å¼,ä¸Šç”µå°±å¼€å§‹å¯åŠ¨;
+//								0:ATXæ¨¡å¼,ä¸Šç”µåéœ€è¦æŒ‰power buttonæŒ‰é’®å¼€æœº
+// 1:0		LEC_CTL				æ§åˆ¶LEDæŒ‡ç¤ºç¯æ˜¾ç¤ºæ¨¡å¼ï¼š
+//								11:LEDæŒ‡ç¤ºç¯æ˜¾ç¤ºä¸Šç”µè¿‡ç¨‹
+//								10:LEDæŒ‡ç¤ºç¯æ˜¾ç¤ºPOSTCODE
+//								01:LEDæŒ‡ç¤ºç¯æ˜¾ç¤ºPEX8609 PCIEé€Ÿç‡çŠ¶æ€
+//								00:LEDæŒ‡ç¤ºç¯æ˜¾ç¤ºLEDå¯„å­˜å™¨
+`define REG_OUT_DEFAULT 16'hfd26  // LEDæ˜¾ç¤ºPOSTCODE,é€‰æ‹©é…ç½®2,å•é€šé“å±
+//`define REG_OUT_DEFAULT 16'hfd27	// LEDæ˜¾ç¤ºä¸Šç”µè¿‡ç¨‹,é€‰æ‹©é…ç½®2,å•é€šé“å±
+//`define REG_OUT_DEFAULT 16'hfdfe  // LEDæ˜¾ç¤ºPOSTCODE,é€‰æ‹©é…ç½®16,åŒé€šé“å±
+//`define REG_OUT_DEFAULT 16'hfdff  // LEDæ˜¾ç¤ºä¸Šç”µè¿‡ç¨‹,é€‰æ‹©é…ç½®16,åŒé€šé“å±
 
 module LPC_Device
 (
 	input SLP_S5n,
 	input lclk,				// Clock
 	input lreset_n,			// Reset - Active Low (Same as PCI Reset)
-	input lpc_en,			// ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
+	input lpc_en,			// åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
 	input device_cs,
-	input [7:0] addr,		// µØÖ·
+	input [7:0] addr,		// åœ°å€
 	input [7:0] din,
 	output reg [7:0] dout,
 	input io_rden,
 	input io_wren,
 
-	input INHMDG,			// ¿´ÃÅ¹·½ûÖ¹
-	input DPM_RSTn,			// DPMÄ£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	input HPM_RSTn,			// Ö÷¿ØÄ£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	input MGM_RSTn,			// Íâ²¿°´Å¥ÊÖ¶¯¸´Î»ĞÅºÅ
-	input PSMRSTn,			// µçÔ´Ä£¿éÊä³ö¸øÄ£¿éµÄ¸´Î»ĞÅºÅ
-	output wire MGM_STS,	// PCI-E×´Ì¬Ö¸Ê¾ĞÅºÅ
-	output reg USER_RSTn,	// ÓÃ»§¸´Î»ĞÅºÅ
-	output wire RST_STS,	// ¸´Î»ĞÅºÅ
-	input SYS_MAIN,				// ÒâÒå´ı¶¨ ÏµÍ³¼à¿Ø
-	input GSE,					// ÒâÒå´ı¶¨ µØÃæ/¿ÕÖĞ
-	input [1:0] SYS,					// ÒâÒå´ı¶¨ ÏµÍ³µ÷ÊÔ
-	input [1:0] SYS_ID,			// ²ÛÎ»Ê¶±ğ
-	input [13:2] DIS_IN,			// ÀëÉ¢Á¿ÊäÈë
-	input L_R,			// Î»ÖÃÊ¶±ğ
+	input INHMDG,			// çœ‹é—¨ç‹—ç¦æ­¢
+	input DPM_RSTn,			// DPMæ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	input HPM_RSTn,			// ä¸»æ§æ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	input MGM_RSTn,			// å¤–éƒ¨æŒ‰é’®æ‰‹åŠ¨å¤ä½ä¿¡å·
+	input PSMRSTn,			// ç”µæºæ¨¡å—è¾“å‡ºç»™æ¨¡å—çš„å¤ä½ä¿¡å·
+	output wire MGM_STS,	// PCI-EçŠ¶æ€æŒ‡ç¤ºä¿¡å·
+	output reg USER_RSTn,	// ç”¨æˆ·å¤ä½ä¿¡å·
+	output wire RST_STS,	// å¤ä½ä¿¡å·
+	input SYS_MAIN,				// æ„ä¹‰å¾…å®š ç³»ç»Ÿç›‘æ§
+	input GSE,					// æ„ä¹‰å¾…å®š åœ°é¢/ç©ºä¸­
+	input [1:0] SYS,					// æ„ä¹‰å¾…å®š ç³»ç»Ÿè°ƒè¯•
+	input [1:0] SYS_ID,			// æ§½ä½è¯†åˆ«
+	input [13:2] DIS_IN,			// ç¦»æ•£é‡è¾“å…¥
+	input L_R,			// ä½ç½®è¯†åˆ«
 	
 	input [7:0] PG0,		// Power Good Group 0
 	input [7:0] PG1,		// Power Good Group 1
 	
 	input [7:0] ETH_STS,		// ethernet lan status
 
-	output reg [7:0] LED_REG,	// ²âÊÔ¼Ä´æÆ÷ÓÃÓÚµãÁÁÇ°Ãæ°åLEDµÆ
+	output reg [7:0] LED_REG,	// æµ‹è¯•å¯„å­˜å™¨ç”¨äºç‚¹äº®å‰é¢æ¿LEDç¯
 	output wire osc,
-	output reg [15:0] reg_out, // ¼Ä´æÆ÷Êä³ö
-	output reg [7:0] lpc_reg,	// LPC ÅäÖÃ¼Ä´æÆ÷
+	output reg [15:0] reg_out, // å¯„å­˜å™¨è¾“å‡º
+	output reg [7:0] lpc_reg,	// LPC é…ç½®å¯„å­˜å™¨
 	`ifdef USE_UFM
-		output reg ctrl_signal	// =0,ÉÏµç×Ô¶ÁÈ¡;=1,Íâ²¿¿ØÖÆ
+		output reg ctrl_signal	// =0,ä¸Šç”µè‡ªè¯»å–;=1,å¤–éƒ¨æ§åˆ¶
 	`else
-		output wire ctrl_signal	// =0,ÉÏµç×Ô¶ÁÈ¡;=1,Íâ²¿¿ØÖÆ
+		output wire ctrl_signal	// =0,ä¸Šç”µè‡ªè¯»å–;=1,å¤–éƒ¨æ§åˆ¶
 	`endif
 );
 
-// È«¾ÖÊ¹ÓÃµÄ¼ÆÊ±Æ÷£¬ÓÃÓÚ¸÷ÖÖÑÓÊ±
-// Ò»¸ö¼ÆÊ±ÂúÖÜÆÚ´óÔ¼184us
+// å…¨å±€ä½¿ç”¨çš„è®¡æ—¶å™¨ï¼Œç”¨äºå„ç§å»¶æ—¶
+// ä¸€ä¸ªè®¡æ—¶æ»¡å‘¨æœŸå¤§çº¦184us
 reg [9:0] time_kick;
 always @(posedge osc) begin
 	time_kick <= time_kick + 10'h1;
 end
 
-// ÎªÁË±£Ö¤ÉÏµçÎÈ¶¨ Õû¸öÏµÍ³ÉÏµçºóÑÓÊ±1s²Å¿ªÊ¼¹¤×÷
+// ä¸ºäº†ä¿è¯ä¸Šç”µç¨³å®š æ•´ä¸ªç³»ç»Ÿä¸Šç”µåå»¶æ—¶1sæ‰å¼€å§‹å·¥ä½œ
 reg [12:0] firsttime_cnt;
 wire MYSELF_RSTn;
 assign MYSELF_RSTn = (firsttime_cnt == 13'h153b);
-//assign MYSELF_RSTn = 1; // ÎªÁË½ÚÊ¡Âß¼­×ÊÔ´È¡Ïû´Ë¼ÆÊıÆ÷
+//assign MYSELF_RSTn = 1; // ä¸ºäº†èŠ‚çœé€»è¾‘èµ„æºå–æ¶ˆæ­¤è®¡æ•°å™¨
 always @(posedge osc) begin
 	if(time_kick == 10'h3ff) begin
 		if(firsttime_cnt < 13'h153b)
@@ -100,7 +100,7 @@ always @(posedge osc) begin
 end
 
 
-	// µ÷ÓÃMAX2Æ÷¼şÄÚ²¿µÄ5.56MHz¾§Õñ
+	// è°ƒç”¨MAX2å™¨ä»¶å†…éƒ¨çš„5.56MHzæ™¶æŒ¯
 	maxII_osc maxII_osc(
 		.oscena(1'b1),
 		.osc(osc)
@@ -109,7 +109,7 @@ end
 	assign ctrl_signal = MYSELF_RSTn;
 
 
-// Í¬²½Íâ²¿ĞÅºÅ
+// åŒæ­¥å¤–éƒ¨ä¿¡å·
 reg DPM_RSTn_syn,HPM_RSTn_syn,MGM_RSTn_syn,PSMRSTn_syn;
 always @ (posedge osc or negedge MYSELF_RSTn) begin
 	if(!MYSELF_RSTn) begin
@@ -126,7 +126,7 @@ always @ (posedge osc or negedge MYSELF_RSTn) begin
 	end
 end
 
-// ÓÃÓÚÑÓ³Ù¸´Î»
+// ç”¨äºå»¶è¿Ÿå¤ä½
 reg [11:0] ms_cnt;
 reg ena_ms;
 always @(posedge osc or negedge MYSELF_RSTn) begin
@@ -146,7 +146,7 @@ always @(posedge osc or negedge MYSELF_RSTn) begin
 		ms_cnt <= 0;
 end
 
-// ¸´Î»Âß¼­×´Ì¬»ú
+// å¤ä½é€»è¾‘çŠ¶æ€æœº
 reg [3:0] rst_state;
 wire watchdog_over;
 always @ (posedge osc or negedge MYSELF_RSTn) begin
@@ -160,12 +160,12 @@ always @ (posedge osc or negedge MYSELF_RSTn) begin
 			0: begin
 				USER_RSTn <= 1;
 				ena_ms <= 0;
-				if(!(DPM_RSTn_syn & HPM_RSTn_syn & MGM_RSTn_syn & PSMRSTn_syn & watchdog_over)) // ÈÎÒâÒ»¸öĞÅºÅÎªµÍ
+				if(!(DPM_RSTn_syn & HPM_RSTn_syn & MGM_RSTn_syn & PSMRSTn_syn & watchdog_over)) // ä»»æ„ä¸€ä¸ªä¿¡å·ä¸ºä½
 					rst_state <= 1;
 				else
 					rst_state <= rst_state;
 			end
-			1: begin // ÑÓÊ±0.5s·¢³ö¸´Î»ĞÅºÅ
+			1: begin // å»¶æ—¶0.5så‘å‡ºå¤ä½ä¿¡å·
 				USER_RSTn <= 1;
 				if( ms_cnt >= 12'ha9d ) begin
 					rst_state <= 2;
@@ -176,10 +176,10 @@ always @ (posedge osc or negedge MYSELF_RSTn) begin
 					ena_ms <= 1;
 				end
 			end
-			2: begin // µÈ´ı¼ÆÊıÆ÷ÇåÁã
+			2: begin // ç­‰å¾…è®¡æ•°å™¨æ¸…é›¶
 				rst_state <= 3;
 			end
-			3: begin // ¸´Î»ĞÅºÅ±£³Ö0.1s
+			3: begin // å¤ä½ä¿¡å·ä¿æŒ0.1s
 				if( ms_cnt == 12'h221 ) begin
 					rst_state <= 0;
 					USER_RSTn <= 1;
@@ -200,15 +200,15 @@ always @ (posedge osc or negedge MYSELF_RSTn) begin
 	end
 end
 
-// PCI-EµÄ×´Ì¬Êä³öĞÅºÅ(MGM_STS):
-// ÓÉÇı¶¯³ÌĞò¿ØÖÆÕâ¸öĞÅºÅµÄÊä³ö:
-// ¸ßµçÆ½±íÊ¾Ä£¿éÉÏµç³õÊ¼»¯ºó¹¤×÷Õı³£
+// PCI-Eçš„çŠ¶æ€è¾“å‡ºä¿¡å·(MGM_STS):
+// ç”±é©±åŠ¨ç¨‹åºæ§åˆ¶è¿™ä¸ªä¿¡å·çš„è¾“å‡º:
+// é«˜ç”µå¹³è¡¨ç¤ºæ¨¡å—ä¸Šç”µåˆå§‹åŒ–åå·¥ä½œæ­£å¸¸
 reg MGM_STS_reg;
 assign MGM_STS = DPM_RSTn_syn & HPM_RSTn_syn & MGM_RSTn_syn & PSMRSTn_syn & MGM_STS_reg & watchdog_over;
 assign RST_STS = DPM_RSTn_syn & HPM_RSTn_syn & MGM_RSTn_syn & PSMRSTn_syn & watchdog_over;
 `ifdef USE_UFM
-	// ÓÃ33MHz¼ÆÊ±,UFMµÄ¶ÁĞ´ĞÅºÅÂö¿íÔÚ30~100¼ÆÊıÖ®¼ä
-	// ¶ÁĞ´ĞÅºÅÓĞĞ§ºó,ÖÁÉÙ15¸öÖÜÆÚºó²ÅÄÜÈ¥ÅĞ¶ÏnbusyºÍdata_validµÄ×´Ì¬
+	// ç”¨33MHzè®¡æ—¶,UFMçš„è¯»å†™ä¿¡å·è„‰å®½åœ¨30~100è®¡æ•°ä¹‹é—´
+	// è¯»å†™ä¿¡å·æœ‰æ•ˆå,è‡³å°‘15ä¸ªå‘¨æœŸåæ‰èƒ½å»åˆ¤æ–­nbusyå’Œdata_validçš„çŠ¶æ€
 	reg [7:0] rw_pluse_cnt;
 	reg read_reg;
 	reg write_reg;
@@ -236,39 +236,39 @@ assign RST_STS = DPM_RSTn_syn & HPM_RSTn_syn & MGM_RSTn_syn & PSMRSTn_syn & watc
 	assign nbusy_reg = 1;
 `endif
 
-// LPC index/data ¼Ä´æÆ÷
-// µØÖ· ¶ÁĞ´	¼Ä´æÆ÷Ãû
-// 0x00 R		CPLD³ÌĞò°æ±¾ºÅ
-// 0x01 R/W		led¼Ä´æÆ÷
-// 0x02 R/W		UFM¿ØÖÆ¼Ä´æÆ÷
-// 0x03 R/W		UFMµØÖ·¼Ä´æÆ÷
-// 0x04 R/W		UFMÊı¾İ¼Ä´æÆ÷-¸ß8Î»
-// 0x05 R/W		UFMÊı¾İ¼Ä´æÆ÷-µÍ8Î»
-// 0x06 R/W		ÓÃ»§¼Ä´æÆ÷
-// 0x07 R/W     ¿´ÃÅ¹·Ê¹ÄÜºÍÇå³ı¼Ä´æÆ÷
-// 0x08 R/W     ¿´ÃÅ¹·¶¨Ê±Æ÷[15:8]
-// 0x09 R/W     ¿´ÃÅ¹·¶¨Ê±Æ÷[7:0]
-// 0x0a R	    ¿´ÃÅ¹·¼ÆÊı¼Ä´æÆ÷[15:8]
-// 0x0b R		¿´ÃÅ¹·¼ÆÊı¼Ä´æÆ÷[7:0]
-// 0x0c R/W     °å¿¨ÅäÖÃ¼Ä´æÆ÷[15:8]
-// 0x0d R/W     °å¿¨ÅäÖÃ¼Ä´æÆ÷[7:0]
-// 0x0e R/W     LPC¼Ä´æÆ÷[7:0]
-// 0x10 R	ÀëÉ¢Á¿ÊäÈë[0£¬0£¬DIS_IN[7:2] ]
-// 0x11 R	ÀëÉ¢Á¿ÊäÈë[DIS_IN[13:8]£¬0£¬0]
-// 0x12 R	Î»ÖÃÊ¶±ğ
+// LPC index/data å¯„å­˜å™¨
+// åœ°å€ è¯»å†™	å¯„å­˜å™¨å
+// 0x00 R		CPLDç¨‹åºç‰ˆæœ¬å·
+// 0x01 R/W		ledå¯„å­˜å™¨
+// 0x02 R/W		UFMæ§åˆ¶å¯„å­˜å™¨
+// 0x03 R/W		UFMåœ°å€å¯„å­˜å™¨
+// 0x04 R/W		UFMæ•°æ®å¯„å­˜å™¨-é«˜8ä½
+// 0x05 R/W		UFMæ•°æ®å¯„å­˜å™¨-ä½8ä½
+// 0x06 R/W		ç”¨æˆ·å¯„å­˜å™¨
+// 0x07 R/W     çœ‹é—¨ç‹—ä½¿èƒ½å’Œæ¸…é™¤å¯„å­˜å™¨
+// 0x08 R/W     çœ‹é—¨ç‹—å®šæ—¶å™¨[15:8]
+// 0x09 R/W     çœ‹é—¨ç‹—å®šæ—¶å™¨[7:0]
+// 0x0a R	    çœ‹é—¨ç‹—è®¡æ•°å¯„å­˜å™¨[15:8]
+// 0x0b R		çœ‹é—¨ç‹—è®¡æ•°å¯„å­˜å™¨[7:0]
+// 0x0c R/W     æ¿å¡é…ç½®å¯„å­˜å™¨[15:8]
+// 0x0d R/W     æ¿å¡é…ç½®å¯„å­˜å™¨[7:0]
+// 0x0e R/W     LPCå¯„å­˜å™¨[7:0]
+// 0x10 R	ç¦»æ•£é‡è¾“å…¥[0ï¼Œ0ï¼ŒDIS_IN[7:2] ]
+// 0x11 R	ç¦»æ•£é‡è¾“å…¥[DIS_IN[13:8]ï¼Œ0ï¼Œ0]
+// 0x12 R	ä½ç½®è¯†åˆ«
 // 0x13 R	power good 0
 // 0x14 R	power good 1
 // 0x15 R	ETH_STS
 
-// 0x06 ÓÃ»§¼Ä´æÆ÷
-// bit		¶ÁĞ´	name				ËµÃ÷
-// 7		R		NC					Ê¼ÖÕÎª0
-// 6		R		INHMDG				¿´ÃÅ¹·½ûÖ¹Òı½Å
-// 5:4		R		SYS_ID				²ÛÎ»Ê¶±ğIDºÅ
-// 3		R		SYS					ÏµÍ³µ÷ÊÔÒı½Å×´Ì¬
-// 2		R		GSE					µØÃæ/¿ÕÖĞ ¸ßµçÆ½²»ÄÜ½øÈëBIOS SETUP²Ëµ¥
-// 1		R		SYS_MAIN			ÏµÍ³¼à¿ØÒı½Å×´Ì¬
-// 0		R/W		MGM_STS				PCI-EµÄ×´Ì¬Êä³öĞÅºÅ ¸ßµçÆ½±íÊ¾Ä£¿éÉÏµç³õÊ¼»¯ºó¹¤×÷Õı³£
+// 0x06 ç”¨æˆ·å¯„å­˜å™¨
+// bit		è¯»å†™	name				è¯´æ˜
+// 7		R		NC					å§‹ç»ˆä¸º0
+// 6		R		INHMDG				çœ‹é—¨ç‹—ç¦æ­¢å¼•è„š
+// 5:4		R		SYS_ID				æ§½ä½è¯†åˆ«IDå·
+// 3		R		SYS					ç³»ç»Ÿè°ƒè¯•å¼•è„šçŠ¶æ€
+// 2		R		GSE					åœ°é¢/ç©ºä¸­ é«˜ç”µå¹³ä¸èƒ½è¿›å…¥BIOS SETUPèœå•
+// 1		R		SYS_MAIN			ç³»ç»Ÿç›‘æ§å¼•è„šçŠ¶æ€
+// 0		R/W		MGM_STS				PCI-Eçš„çŠ¶æ€è¾“å‡ºä¿¡å· é«˜ç”µå¹³è¡¨ç¤ºæ¨¡å—ä¸Šç”µåˆå§‹åŒ–åå·¥ä½œæ­£å¸¸
 
 wire [7:0] reg_version;
 reg watchdog_ena;
@@ -278,7 +278,7 @@ reg [15:0] watchdog_cnt,watchdog_reg,watchdog_reg_syn;
 assign watchdog_over = !(watchdog_cnt==watchdog_reg_syn);
 assign reg_version = `CPLD_VERSION;
 
-// ¿´ÃÅ¹·¼ÆÊıÆ÷
+// çœ‹é—¨ç‹—è®¡æ•°å™¨
 always @ (posedge osc or posedge watchdog_clean) begin
 	watchdog_reg_syn <= watchdog_reg;
 	if(watchdog_clean)
@@ -297,12 +297,12 @@ always @ (posedge osc or posedge watchdog_clean) begin
 		watchdog_cnt <= 0;
 end
 
-// lpc ¼Ä´æÆ÷²Ù×÷
+// lpc å¯„å­˜å™¨æ“ä½œ
 always @ (posedge lclk or negedge SLP_S5n) begin
 	if(!SLP_S5n) begin
 		dout <= 8'hzz;
-		LED_REG <= 8'h5a;  // s5²Å»á¸´Î»
-		lpc_reg <= 8'h00;  // s5²Å»á¸´Î»
+		LED_REG <= 8'h5a;  // s5æ‰ä¼šå¤ä½
+		lpc_reg <= 8'h00;  // s5æ‰ä¼šå¤ä½
 		MGM_STS_reg <= 1;
 		watchdog_ena <= 0;
 		watchdog_clean <= 0;
@@ -312,10 +312,10 @@ always @ (posedge lclk or negedge SLP_S5n) begin
 			write_reg <= 0;
 			datain <= 0;
 		`else
-			reg_out <= `REG_OUT_DEFAULT;  // s5²Å»á¸´Î»
+			reg_out <= `REG_OUT_DEFAULT;  // s5æ‰ä¼šå¤ä½
 		`endif
 	end
-	else if(!lreset_n) begin   // s3¸´Î»
+	else if(!lreset_n) begin   // s3å¤ä½
 		dout <= 8'hzz;
 		MGM_STS_reg <= 1;
 		watchdog_ena <= 0;
@@ -332,7 +332,7 @@ always @ (posedge lclk or negedge SLP_S5n) begin
 			reg_out <= reg_out;
 		`endif
 	end
-	else if(device_cs & io_rden & lpc_en) begin // LPC ¼Ä´æÆ÷¶Á
+	else if(device_cs & io_rden & lpc_en) begin // LPC å¯„å­˜å™¨è¯»
 		if(addr==0)
 			dout <= reg_version;
 		else if(addr==1)
@@ -383,20 +383,20 @@ always @ (posedge lclk or negedge SLP_S5n) begin
 		else
 			dout <= 8'hff;
 	end
-	else if(device_cs & io_wren & lpc_en) begin // LPC¼Ä´æÆ÷Ğ´
+	else if(device_cs & io_wren & lpc_en) begin // LPCå¯„å­˜å™¨å†™
 		if(addr==1)
 			LED_REG <= din;
 		`ifdef USE_UFM
-			else if(addr==2) begin // UFMÄ£¿é²Ù×÷
-				if(din == 8'h55) begin // ¶Á²Ù×÷
+			else if(addr==2) begin // UFMæ¨¡å—æ“ä½œ
+				if(din == 8'h55) begin // è¯»æ“ä½œ
 					read_reg <= 1;
 					write_reg <= 0;
 				end
-				else if(din == 8'haa) begin // Ğ´²Ù×÷
+				else if(din == 8'haa) begin // å†™æ“ä½œ
 					read_reg <= 0;
 					write_reg <= 1;
 				end
-				else if(din == 8'h00) begin // ³·Ïú¶ÁĞ´²Ù×÷
+				else if(din == 8'h00) begin // æ’¤é”€è¯»å†™æ“ä½œ
 					read_reg <= 0;
 					write_reg <= 0;
 				end

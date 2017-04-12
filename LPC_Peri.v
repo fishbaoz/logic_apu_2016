@@ -22,17 +22,17 @@ module LPC_Peri (
   input  wire        lframe_n     , // Frame - Active Low
   inout  wire [ 3:0] lad_in       , // Address/Data Bus
 
-  output reg [ 3:0]  lpc_data_out , // ÓÃÓÚ²âÊÔ
+  output reg [ 3:0]  lpc_data_out , // ç”¨äºæµ‹è¯•
 
-  output reg         lpc_en       , // ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
-  input  wire        addr_hit     , // µØÖ·Æ¥ÅäÖÃ1,²»Æ¥ÅäÖÃ0
-  output reg [15:0]  lpc_addr     , // LPCµØÖ·
-  input  wire [ 7:0] din          , // LPC¶ÁµÄÊ±ºòºó¶ËÊäÈëµÄÊı¾İ
-  output reg  [ 7:0] lpc_data_in  , // LPCĞ´µÄÊ±ºò¸øºó¶ËµÄÊä³öÊı¾İ
+  output reg         lpc_en       , // åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
+  input  wire        addr_hit     , // åœ°å€åŒ¹é…ç½®1,ä¸åŒ¹é…ç½®0
+  output reg [15:0]  lpc_addr     , // LPCåœ°å€
+  input  wire [ 7:0] din          , // LPCè¯»çš„æ—¶å€™åç«¯è¾“å…¥çš„æ•°æ®
+  output reg  [ 7:0] lpc_data_in  , // LPCå†™çš„æ—¶å€™ç»™åç«¯çš„è¾“å‡ºæ•°æ®
   output reg         io_rden_sm   ,
   output reg         io_wren_sm   ,
-  inout int_serirq,					// ´®ĞĞÖĞ¶ÏÊı¾İÏß
-  input [7:0] serirq                // ÖĞ¶ÏÊäÈë
+  inout int_serirq,					// ä¸²è¡Œä¸­æ–­æ•°æ®çº¿
+  input [7:0] serirq                // ä¸­æ–­è¾“å…¥
 );
 
 reg [ 4:0] current_state;
@@ -101,7 +101,7 @@ always @ (posedge lclk or negedge lreset_n) begin
           current_state <= `IDLE;
       end
 
-      // LPC¶Á×´Ì¬»ú
+      // LPCè¯»çŠ¶æ€æœº
       `IO_RD: begin
         if(lframe_n == 1'b1) begin
           lpc_addr[15:12] <= lad_in;
@@ -201,7 +201,7 @@ always @ (posedge lclk or negedge lreset_n) begin
           lpc_en <= 0;
       end
 
-      // LPCĞ´×´Ì¬»ú
+      // LPCå†™çŠ¶æ€æœº
       `IO_WR: begin
         if(lframe_n == 1'b1) begin
           lpc_addr[15:12] <= lad_in;
@@ -309,9 +309,9 @@ always @ (posedge lclk or negedge lreset_n) begin
   end
 end
 
-// ´®ĞĞÖĞ¶ÏÄ£¿é
+// ä¸²è¡Œä¸­æ–­æ¨¡å—
 reg [5:0] serirq_cnt;
-reg [3:0] serirq_shift; // ÓÃÓÚÅĞ¶ÏÆğÊ¼Ö¡00001
+reg [3:0] serirq_shift; // ç”¨äºåˆ¤æ–­èµ·å§‹å¸§00001
 reg [1:0] irq_state;
 wire serirq_dir;
 wire serirq_data;
@@ -359,7 +359,7 @@ always @ (posedge lclk or negedge lreset_n) begin
 				serirq_shift[3:1] <= serirq_shift[2:0];
 				if({serirq_shift, int_serirq}== 5'b0_0001) begin
 					irq_state <= `IRQDOING;
-					serirq_cnt <= 2; // ÕâÀïµ÷Õû¼ÆÊıÆ÷µÄÎ»ÖÃ0~3
+					serirq_cnt <= 2; // è¿™é‡Œè°ƒæ•´è®¡æ•°å™¨çš„ä½ç½®0~3
 				end
 				else begin
 					irq_state <= irq_state;

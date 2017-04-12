@@ -9,41 +9,41 @@ module LPC_COM
 (
 	input lclk,					// Clock 33MHz
 	input lreset_n,				// Reset - Active Low (Same as PCI Reset)
-	input lpc_en,				// ºó¶Ë×ÜÏßÊ¹ÄÜĞÅºÅ,¸ßµçÆ½Ê±×ÜÏßÓĞĞ§
+	input lpc_en,				// åç«¯æ€»çº¿ä½¿èƒ½ä¿¡å·,é«˜ç”µå¹³æ—¶æ€»çº¿æœ‰æ•ˆ
 	input device_cs,
-	input [15:0] addr,			// µØÖ·
+	input [15:0] addr,			// åœ°å€
 	input [7:0] din,
 	output reg [7:0] dout,
 	input io_rden,
 	input io_wren,
-	output wire com_irq,		// ´®¿ÚÖĞ¶ÏÏß ¸ßµçÆ½ÓĞĞ§
+	output wire com_irq,		// ä¸²å£ä¸­æ–­çº¿ é«˜ç”µå¹³æœ‰æ•ˆ
 
-	input clk_24mhz,			// 24MHzÊ±ÖÓÊäÈë
+	input clk_24mhz,			// 24MHzæ—¶é’Ÿè¾“å…¥
 	output reg tx,
 	input rx,
-	output reg baud_clk			// ²¨ÌØÂÊÊ±ÖÓÊä³ö
+	output reg baud_clk			// æ³¢ç‰¹ç‡æ—¶é’Ÿè¾“å‡º
 
 );
 
-reg send_busy; // ´®¿Ú·¢ËÍÖĞ
-reg tx_ena; // ·¢ËÍÊ¹ÄÜĞÅºÅ
+reg send_busy; // ä¸²å£å‘é€ä¸­
+reg tx_ena; // å‘é€ä½¿èƒ½ä¿¡å·
 
-// µØÖ· ¶ÁĞ´	¼Ä´æÆ÷Ãû
-// 0x00 R		rbr: ½ÓÊÕbuffer
-// 0x00 W		tbr: ·¢ËÍbuffer
-// 0x01 R/W		icr: ÖĞ¶ÏÊ¹ÄÜ¼Ä´æÆ÷
-// 0x02 R		isr: ÖĞ¶Ï×´Ì¬¼Ä´æÆ÷
-// 0x02 W		fcr: fifo ¿ØÖÆ¼Ä´æÆ÷
-// 0x03 R/W		lcr: Ïß¿Ø¼Ä´æÆ÷
-// 0x04 R/W		mcr: modem¿ØÖÆ¼Ä´æÆ÷
-// 0x05 R		lsr: Ïß¿Ø×´Ì¬¼Ä´æÆ÷
-// 0x06 R		msr: modem×´Ì¬¼Ä´æÆ÷
+// åœ°å€ è¯»å†™	å¯„å­˜å™¨å
+// 0x00 R		rbr: æ¥æ”¶buffer
+// 0x00 W		tbr: å‘é€buffer
+// 0x01 R/W		icr: ä¸­æ–­ä½¿èƒ½å¯„å­˜å™¨
+// 0x02 R		isr: ä¸­æ–­çŠ¶æ€å¯„å­˜å™¨
+// 0x02 W		fcr: fifo æ§åˆ¶å¯„å­˜å™¨
+// 0x03 R/W		lcr: çº¿æ§å¯„å­˜å™¨
+// 0x04 R/W		mcr: modemæ§åˆ¶å¯„å­˜å™¨
+// 0x05 R		lsr: çº¿æ§çŠ¶æ€å¯„å­˜å™¨
+// 0x06 R		msr: modemçŠ¶æ€å¯„å­˜å™¨
 reg [7:0] tbr,rbr,icr,isr,fcr,lcr,mcr,msr;
-reg [15:0] baud_r; // ²¨ÌØÂÊ¼Ä´æÆ÷
-//reg [15:0] baud_cnt; // ²¨ÌØÂÊ¼ÆÊıÆ÷
+reg [15:0] baud_r; // æ³¢ç‰¹ç‡å¯„å­˜å™¨
+//reg [15:0] baud_cnt; // æ³¢ç‰¹ç‡è®¡æ•°å™¨
 wire [7:0] lsr;
-reg rx_have; // ½ÓÊÕµ½1¸ö×Ö½ÚÖÃ¸ß
-reg rx_syn; // Í¬²½Íâ²¿rxĞÅºÅ
+reg rx_have; // æ¥æ”¶åˆ°1ä¸ªå­—èŠ‚ç½®é«˜
+reg rx_syn; // åŒæ­¥å¤–éƒ¨rxä¿¡å·
 assign lsr = {1'b0,!tx_ena,!tx_ena,4'b0000,rx_have};
 assign com_irq = mcr[3] & (~isr[0]);
 
@@ -58,7 +58,7 @@ always @ (posedge lclk or negedge lreset_n) begin
 		dout <= 8'hzz;
 		baud_r <= 1;
 	end
-	else if(device_cs & io_rden & lpc_en) begin // ¼Ä´æÆ÷¶Á
+	else if(device_cs & io_rden & lpc_en) begin // å¯„å­˜å™¨è¯»
 		if(addr==0) begin
 			if(lcr[7])
 				dout <= baud_r[7:0];
@@ -84,7 +84,7 @@ always @ (posedge lclk or negedge lreset_n) begin
 		else
 			dout <= 8'hff;
 	end
-	else if(device_cs & io_wren & lpc_en) begin // ¼Ä´æÆ÷Ğ´
+	else if(device_cs & io_wren & lpc_en) begin // å¯„å­˜å™¨å†™
 		dout <= 8'hzz;
 		if(addr==0) begin
 			if(lcr[7])
@@ -118,7 +118,7 @@ always @ (posedge lclk or negedge lreset_n) begin
 end
 
 // clk soure 24MHz/13=1.8462MHz
-// ÓÃÓÚ²úÉú´®¿ÚÄ£¿éµÄÊ±ÖÓÔ´
+// ç”¨äºäº§ç”Ÿä¸²å£æ¨¡å—çš„æ—¶é’Ÿæº
 reg [3:0] PRE_DIV;
 always @ (posedge clk_24mhz or negedge lreset_n) begin
 	if(!lreset_n) begin
@@ -139,7 +139,7 @@ always @ (posedge clk_24mhz or negedge lreset_n) begin
 	end
 end
 
-// 16x ²¨ÌØÂÊ¼ÆÊıÆ÷
+// 16x æ³¢ç‰¹ç‡è®¡æ•°å™¨
 reg [3:0] cnt_16x;
 always @ (posedge baud_clk or negedge lreset_n) begin
 	if(!lreset_n)
@@ -150,7 +150,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 		cnt_16x <= 0;
 end
 
-// ´®¿Ú·¢ËÍÄ£¿é
+// ä¸²å£å‘é€æ¨¡å—
 reg [2:0] tx_state;
 `define TXIDLE				3'b000
 `define TXSTART				3'b001
@@ -186,7 +186,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 				end
 				else begin
 					tx_state <= tx_state;
-					tx <= 0; // ·¢ËÍÆğÊ¼Î»
+					tx <= 0; // å‘é€èµ·å§‹ä½
 					send_bit_cnt <= 0;
 				end
 			end
@@ -199,7 +199,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 				end
 				else if((send_bit_cnt <= 7) && (cnt_16x == 4'hf)) begin
 					tx_state <= tx_state;
-					tx <= tbr[send_bit_cnt]; // ·¢ËÍÊı¾İÎ»
+					tx <= tbr[send_bit_cnt]; // å‘é€æ•°æ®ä½
 					send_bit_cnt <= send_bit_cnt + 1;
 				end
 				else begin
@@ -209,7 +209,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 				end
 			end
 			`TXSTOP: begin
-				tx <= 1; // ·¢ËÍÍ£Ö¹Î»
+				tx <= 1; // å‘é€åœæ­¢ä½
 				send_busy <= 1;
 				if((send_bit_cnt == 4) && (cnt_16x == 4'hf)) begin
 					tx_state <= `WAITEND;
@@ -224,7 +224,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 					send_bit_cnt <= send_bit_cnt;
 				end
 			end
-			`WAITEND: begin // µÈ´ı·¢ËÍ½áÊø
+			`WAITEND: begin // ç­‰å¾…å‘é€ç»“æŸ
 				tx <= 1;
 				send_bit_cnt <= 0;
 				send_busy <= 0;
@@ -243,7 +243,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 	end
 end
 
-// ÅĞ¶Ïtx_enaºÍsend_busyÂß¼­
+// åˆ¤æ–­tx_enaå’Œsend_busyé€»è¾‘
 reg send_busy_a,send_busy_b,send_busy_c;
 //reg tx_reg_empty;
 always @ (posedge lclk or negedge lreset_n) begin
@@ -263,7 +263,7 @@ always @ (posedge lclk or negedge lreset_n) begin
 	else if({send_busy_c,send_busy_b} == 2'b10)
 		tx_reg_empty <= 1;
 	else if(device_cs & io_rden & lpc_en) begin
-		if((addr==2) & (isr[3:0] == 4'b0010)) // ¶Áisr¼Ä´æÆ÷ Çå¿ÕÖĞ¶Ï
+		if((addr==2) & (isr[3:0] == 4'b0010)) // è¯»isrå¯„å­˜å™¨ æ¸…ç©ºä¸­æ–­
 			tx_reg_empty <= 0;
 		else
 			tx_reg_empty <= tx_reg_empty;
@@ -285,7 +285,7 @@ always @ (posedge lclk or negedge lreset_n) begin
 		tx_ena <= tx_ena;
 end
 
-// ´®¿Ú½ÓÊÕÄ£¿é
+// ä¸²å£æ¥æ”¶æ¨¡å—
 reg [15:0] rx_16x_bit;
 always @ (posedge baud_clk or negedge lreset_n) begin
 	if(!lreset_n)
@@ -333,7 +333,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 				rbr <= rbr;
 				rx_bit_cnt <= 0;
 				rx_ok <= 0;
-				if(rx_16x_bit==16'h0000) begin // ÊÕµ½ÆğÊ¼Î»
+				if(rx_16x_bit==16'h0000) begin // æ”¶åˆ°èµ·å§‹ä½
 					rx_state <= `RXDATA;
 					rx_busy <= 1;
 				end
@@ -353,7 +353,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 				end
 				else if((rx_bit_cnt <= 7) && (rx_16x_cnt == 4'h8)) begin
 					rx_state <= rx_state;
-					rx_byte_shift[7] <= rx_syn; // ½ÓÊÕÊı¾İÎ»
+					rx_byte_shift[7] <= rx_syn; // æ¥æ”¶æ•°æ®ä½
 					rx_byte_shift[6:0] <= rx_byte_shift[7:1];
 					rx_bit_cnt <= rx_bit_cnt + 1;
 				end
@@ -370,19 +370,19 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 				rx_byte_shift <= rx_byte_shift;
 				rx_bit_cnt <= 0;
 				if(rx_16x_cnt == 4'h8) begin
-					if(rx_syn) // ½ÓÊÕÍ£Ö¹Î»
+					if(rx_syn) // æ¥æ”¶åœæ­¢ä½
 						rx_state <= `RXWAITEND;
-					else // Í£Ö¹Î»³ö´í Å×Æúµ±Ç°Êı¾İ
+					else // åœæ­¢ä½å‡ºé”™ æŠ›å¼ƒå½“å‰æ•°æ®
 						rx_state <= `RXIDLE;
 				end
 				else
 					rx_state <= rx_state;
 			end
-			`RXWAITEND: begin // µÈ´ı½ÓÊÕfifo¿ÕÏĞ
+			`RXWAITEND: begin // ç­‰å¾…æ¥æ”¶fifoç©ºé—²
 				rx_byte_shift <= rx_byte_shift;
 				rx_bit_cnt <= 0;
 				rx_busy <= 0;
-				if(rx_have) begin // fifo Âú
+				if(rx_have) begin // fifo æ»¡
 					rx_ok <= 0;
 					rbr <= rbr;
 					rx_state <= rx_state;
@@ -397,7 +397,7 @@ always @ (posedge baud_clk or negedge lreset_n) begin
 	end
 end
 
-// ÅĞ¶Ïrx_haveºÍrx_busyÂß¼­
+// åˆ¤æ–­rx_haveå’Œrx_busyé€»è¾‘
 reg rx_busy_a,rx_busy_b,rx_busy_c;
 always @ (posedge lclk or negedge lreset_n) begin
 	if(!lreset_n) begin
@@ -425,16 +425,16 @@ always @ (posedge lclk or negedge lreset_n) begin
 		rx_have <= rx_have;
 end
 
-// isrÖĞ¶Ï¼Ä´æÆ÷
+// isrä¸­æ–­å¯„å­˜å™¨
 always @ (posedge lclk or negedge lreset_n) begin
 	if(!lreset_n) begin
 		isr <= 8'hc1;
 	end
-	else if(rx_have & icr[0]) begin // ½ÓÊÕÊı¾İÖĞ¶Ï
+	else if(rx_have & icr[0]) begin // æ¥æ”¶æ•°æ®ä¸­æ–­
 		isr[3:0] <= 4'b0100;
 	end
 	/*
-	else if(tx_reg_empty & icr[1]) begin // ´«Êä¼Ä´æÆ÷¿ÕÖĞ¶Ï
+	else if(tx_reg_empty & icr[1]) begin // ä¼ è¾“å¯„å­˜å™¨ç©ºä¸­æ–­
 		isr[3:0] <= 4'b0010;
 	end
 	*/

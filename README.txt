@@ -1,0 +1,1 @@
+set up the power up logic sequence of AMD APU.
